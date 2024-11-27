@@ -8,7 +8,7 @@ async function generateEmbed(reminders, index) {
         title: `Showing reminders ${index + 1}-${index + current.length} out of ${reminders.length}`,
         fields: await Promise.all(
             current.map(async reminder => ({
-                name: reminder._id,
+                name: 'placeholder',
                 value: `  **Reminder:** ${reminder.Reminder}\n**Interval:** ${reminder.Interval ? [reminder.Interval] : ['once']}`
             }))
         )
