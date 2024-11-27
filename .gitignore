@@ -1,0 +1,8 @@
+node_modules
+.env
+config.json
+playground-1.mongodb.js
+.eslintrc.json
+.DS_STORE
+package.json
+package-lock.json
