@@ -9,7 +9,7 @@ async function generateEmbed(reminders, index) {
         fields: await Promise.all(
             current.map(async reminder => ({
                 name: reminder._id,
-                value: `${reminder.Reminder}`
+                value: `  **Reminder:** ${reminder.Reminder}\n**Interval:** ${reminder.Interval ? [reminder.Interval] : ['once']}`
             }))
         )
     })
@@ -39,7 +39,7 @@ module.exports = {
         });
 
         const canFitOnOnePage = reminders.length <= 10;
-        const embedMessage = await interaction.channel.send({
+        const embedMessage = await interaction.reply({
             embeds: [await generateEmbed(reminders, 0)],
             components: canFitOnOnePage ? [] : [new MessageActionRow({components: [forwardButton]})]
         })
@@ -53,7 +53,7 @@ module.exports = {
         let currIndex = 0;
         collector.on('collect', async interaction => {
             interaction.customId === backId ? (currentIndex -= 10) : (currentIndex += 10);
-            await interactionCreate.update({
+            await interaction.update({
                 components: [
                     ...(currentIndex ? [backButton] : []),
                     ...(currentIndex + 10 < nukeReminders.length ? [forwardButton] : [])
