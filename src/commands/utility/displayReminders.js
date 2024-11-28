@@ -1,15 +1,18 @@
-const reminderSch = require('../../Schemas/remindSchema');
+const Reminder = require('../../Schemas/remindSchema');
+const lookupSch = require('../../Schemas/lookupSchema');
 const { SlashCommandBuilder, MessageActionRow, EmbedBuilder, ButtonComponent } = require('discord.js');
 
-async function generateEmbed(reminders, index) {
+async function generateEmbed(interaction, index) {
+    const reminders = await lookupSch.find({ GuildId: interaction.guild.id }).populate('Reminder').exec();
+
     const current = reminders.slice(index, index+10);
 
     return new EmbedBuilder({
         title: `Showing reminders ${index + 1}-${index + current.length} out of ${reminders.length}`,
         fields: await Promise.all(
             current.map(async reminder => ({
-                name: 'placeholder',
-                value: `  **Reminder:** ${reminder.Reminder}\n**Interval:** ${reminder.Interval ? [reminder.Interval] : ['once']}`
+                name: `ID: ${reminder.Code.toString()}`,
+                value: `  **Reminder:** ${reminder.Reminder.Reminder}\n**Interval:** ${reminder.Reminder.Interval ? [reminder.Reminder.Interval] : ['once']}`
             }))
         )
     })
@@ -34,13 +37,18 @@ module.exports = {
             customId: forwardId
         });
 
-        const reminders = await reminderSch.find({
+        const reminders = await lookupSch.find({
             GuildId: interaction.guild.id
         });
 
+        if (reminders.length <= 0) {
+            await interaction.reply('There are no reminders to display :frowning:');
+            return;
+        }
+
         const canFitOnOnePage = reminders.length <= 10;
         const embedMessage = await interaction.reply({
-            embeds: [await generateEmbed(reminders, 0)],
+            embeds: [await generateEmbed(interaction, 0)],
             components: canFitOnOnePage ? [] : [new MessageActionRow({components: [forwardButton]})]
         })
 
@@ -56,7 +64,7 @@ module.exports = {
             await interaction.update({
                 components: [
                     ...(currentIndex ? [backButton] : []),
-                    ...(currentIndex + 10 < nukeReminders.length ? [forwardButton] : [])
+                    ...(currentIndex + 10 < reminders.length ? [forwardButton] : [])
                 ]
             })
         })

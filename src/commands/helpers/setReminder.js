@@ -1,5 +1,5 @@
-const reminderSch = require('../../Schemas/remindSchema');
-console.log('remindersch: ', reminderSch);
+const Reminder = require('../../Schemas/remindSchema');
+const lookupSch = require('../../Schemas/lookupSchema');
 
 function generateCronJob(dateTime, interval) {
     const hour = dateTime.getHours();
@@ -21,7 +21,8 @@ function generateCronJob(dateTime, interval) {
 
 async function setReminder(reminder, reminderUsers, reminderTime, reminderInterval, ChannelId, GuildId) {
     try {
-        await reminderSch.create({
+        const reminders = await Reminder.find({ GuildId: GuildId }); 
+        reminder = await Reminder.create({
             User: reminderUsers,
             Time: reminderTime,
             Interval: reminderInterval,
@@ -30,6 +31,18 @@ async function setReminder(reminder, reminderUsers, reminderTime, reminderInterv
             ChannelId: ChannelId,
             GuildId: GuildId
         });
+
+        let lookupCode = 0;
+        if (reminders.length > 0) {
+            lookupCode = reminders.length;
+        }
+
+        await lookupSch.create({
+            GuildId: GuildId,
+            Code: lookupCode,
+            Reminder: reminder._id
+        });
+
         console.log('Successfully created reminder!');
     } catch (error) {
         console.error(error);

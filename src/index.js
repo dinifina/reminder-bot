@@ -5,7 +5,7 @@ const { token, dbUri } = require('../config.json');
 const { parseCronExpression } = require('cron-schedule');
 const fs = require('node:fs');
 const path = require('node:path');
-const reminderSch = require('./Schemas/remindSchema.js');
+const Reminder = require('./Schemas/remindSchema.js');
 
 const client = new Client({intents: [
     GatewayIntentBits.Guilds,
@@ -59,7 +59,7 @@ mongoose.connection.on('disconnected', () => console.log('Disconnected'));
 // TODO: Timezone shit
 // Checks reminders every 30 secs and looks ahead 1 minute
 async function checkReminders() {
-    const reminders = await reminderSch.find({
+    const reminders = await Reminder.find({
         Time: {
             $lte: new Date(Date.now()),
             $lte: moment().add(1, 'minute').toDate()

@@ -5,11 +5,11 @@ let reminderSchema = new Schema({
     User: [Array],
     Time: { type: Date, default: Date.now},
     Timezone: String,
-    Interval: { type: String, default: '-1'},
+    Interval: { type: String},
     CronExpression: String,
     Reminder: String,
     ChannelId: String,
     GuildId: String
 });
 
-module.exports = mongoose.model('reminderSch', reminderSchema);
+module.exports = mongoose.model('Reminder', reminderSchema);

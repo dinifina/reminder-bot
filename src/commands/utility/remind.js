@@ -127,15 +127,21 @@ module.exports = {
 
             collector.on('end', async (collected) => {
                 if (users.length > 0) {
-                    let message = `:notepad_spiral: Reminder to **${reminder}** for `; 
-                    users.forEach( user => {
-                        message += `<@${user}> `;
-                    });
-                    message += ` at **${dateTime} ${timezone} time!**`;
+                    try {
+                        let message = `:notepad_spiral: Reminder to **${reminder}** for `; 
+                        users.forEach( user => {
+                            message += `<@${user}> `;
+                        });
+                        message += ` at **${dateTime} ${timezone} time!**`;
+    
+                        // call setReminder
+                        setReminder(reminder, users, new Date(convertedDateTime), interval, channelId, guildId);
+                        await interaction.followUp(message);
+                    } catch (err) {
+                        console.error(err);
+                        await interaction.followUp(':x: Error occurred when setting reminder')
+                    }
 
-                    // call setReminder
-                    setReminder(reminder, users, new Date(convertedDateTime), interval, channelId, guildId);
-                    await interaction.followUp(message);
                 } else {
                     await interaction.followUp('No users were selected for this reminder');
                 }
