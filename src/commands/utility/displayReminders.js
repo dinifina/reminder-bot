@@ -1,5 +1,6 @@
 const Reminder = require('../../Schemas/remindSchema');
 const lookupSch = require('../../Schemas/lookupSchema');
+const moment = require('moment-timezone');
 const { SlashCommandBuilder, MessageActionRow, EmbedBuilder, ButtonComponent } = require('discord.js');
 
 async function generateEmbed(interaction, index) {
@@ -12,7 +13,7 @@ async function generateEmbed(interaction, index) {
         fields: await Promise.all(
             current.map(async reminder => ({
                 name: `ID: ${reminder.Code.toString()}`,
-                value: `  **Reminder:** ${reminder.Reminder.Reminder}\n**Interval:** ${reminder.Interval ? [reminder.Interval] : ['once']}`
+                value: `  **Reminder:** ${reminder.Reminder.Reminder}\n**Time:** ${moment(reminder.Reminder.Time).format("DD MMM YYYY hh:mm a")} **Timezone:** ${reminder.Reminder.Timezone}\n**Interval:** ${reminder.Reminder.Interval ? [reminder.Reminder.Interval] : ['once']}\n`
             }))
         )
     })

@@ -135,7 +135,7 @@ module.exports = {
                         message += ` at **${dateTime} ${timezone} time!**`;
     
                         // call setReminder
-                        setReminder(reminder, users, new Date(convertedDateTime), interval, channelId, guildId);
+                        setReminder(reminder, users, new Date(convertedDateTime), timezone, interval, channelId, guildId);
                         await interaction.followUp(message);
                     } catch (err) {
                         console.error(err);

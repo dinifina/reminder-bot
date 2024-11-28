@@ -19,14 +19,15 @@ function generateCronJob(dateTime, interval) {
     }
 }
 
-async function setReminder(reminder, reminderUsers, reminderTime, reminderInterval, ChannelId, GuildId) {
+async function setReminder(reminder, users, time, timezone, interval, ChannelId, GuildId) {
     try {
         const reminders = await Reminder.find({ GuildId: GuildId }); 
         reminder = await Reminder.create({
-            User: reminderUsers,
-            Time: reminderTime,
-            Interval: reminderInterval,
-            CronExpression: generateCronJob(reminderTime, reminderInterval),
+            User: users,
+            Time: time,
+            Timezone: timezone,
+            Interval: interval,
+            CronExpression: generateCronJob(time, interval),
             Reminder: reminder,
             ChannelId: ChannelId,
             GuildId: GuildId
