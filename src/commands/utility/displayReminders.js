@@ -12,7 +12,7 @@ async function generateEmbed(interaction, index) {
         fields: await Promise.all(
             current.map(async reminder => ({
                 name: `ID: ${reminder.Code.toString()}`,
-                value: `  **Reminder:** ${reminder.Reminder.Reminder}\n**Interval:** ${reminder.Reminder.Interval ? [reminder.Reminder.Interval] : ['once']}`
+                value: `  **Reminder:** ${reminder.Reminder}\n**Interval:** ${reminder.Interval ? [reminder.Interval] : ['once']}`
             }))
         )
     })

@@ -6,6 +6,7 @@ const { parseCronExpression } = require('cron-schedule');
 const fs = require('node:fs');
 const path = require('node:path');
 const Reminder = require('./Schemas/remindSchema.js');
+const Lookup = require('./Schemas/lookupSchema.js');
 
 const client = new Client({intents: [
     GatewayIntentBits.Guilds,
@@ -71,7 +72,7 @@ async function checkReminders() {
         for await (const reminder of reminders) {
             if (moment(reminder.Time).isAfter(moment())) continue;
 
-            const mentionable = reminder.User[0];
+            const mentionable = reminder.User;
             let message = '';
             mentionable.forEach(mentionable => {
                 message += `<@${mentionable}>`;
@@ -87,6 +88,7 @@ async function checkReminders() {
                 continue;
             } else if (reminder.CronExpression == "-1") {
                 await reminder.deleteOne();
+                await Lookup.deleteOne({ GuildId: reminder.GuildId });
             } else {
                     const cronJob = parseCronExpression(reminder.CronExpression);
                     const newDate = cronJob.getNextDate();
