@@ -1,7 +1,7 @@
 const Reminder = require('../../Schemas/remindSchema');
 const lookupSch = require('../../Schemas/lookupSchema');
 const moment = require('moment-timezone');
-const { SlashCommandBuilder, MessageActionRow, EmbedBuilder, ButtonComponent } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonComponent } = require('discord.js');
 
 async function generateEmbed(interaction, index) {
     const reminders = await lookupSch.find({ GuildId: interaction.guild.id }).populate('Reminder').exec();
@@ -28,14 +28,16 @@ module.exports = {
         const forwardId = 'forward';
         const backButton = new ButtonComponent({
             style: 2,
-            emoji: ':arrow_left:',
-            customId: backId
+            type: 2,
+            emoji: { name: '⬅️' },
+            custom_id: backId
         });
 
         const forwardButton = new ButtonComponent({
             style: 2,
-            emoji: ':arrow_right:',
-            customId: forwardId
+            type: 2,
+            emoji: { name: '➡️' },
+            custom_id: forwardId
         });
 
         const reminders = await lookupSch.find({
@@ -50,7 +52,7 @@ module.exports = {
         const canFitOnOnePage = reminders.length <= 10;
         const embedMessage = await interaction.reply({
             embeds: [await generateEmbed(interaction, 0)],
-            components: canFitOnOnePage ? [] : [new MessageActionRow({components: [forwardButton]})]
+            components: canFitOnOnePage ? [] : [new ActionRowBuilder().addComponents([forwardButton])]
         })
 
         if (canFitOnOnePage) return;
@@ -61,12 +63,16 @@ module.exports = {
 
         let currIndex = 0;
         collector.on('collect', async interaction => {
-            interaction.customId === backId ? (currentIndex -= 10) : (currentIndex += 10);
+            interaction.customId === backId ? (currIndex -= 10) : (currIndex += 10);
+            
+            const row = new ActionRowBuilder().addComponents(
+                ...(currIndex ? [backButton] : []),
+                ...(currIndex + 10 < reminders.length ? [forwardButton] : [])
+            )
+
             await interaction.update({
-                components: [
-                    ...(currentIndex ? [backButton] : []),
-                    ...(currentIndex + 10 < reminders.length ? [forwardButton] : [])
-                ]
+                embeds: [await generateEmbed(interaction, currIndex)],
+                components: [row]
             })
         })
     }
