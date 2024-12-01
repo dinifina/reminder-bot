@@ -13,7 +13,11 @@ async function generateEmbed(interaction, index) {
         fields: await Promise.all(
             current.map(async reminder => ({
                 name: `ID: ${reminder.Code.toString()}`,
-                value: `  **Reminder:** ${reminder.Reminder.Reminder}\n**Time:** ${moment(reminder.Reminder.Time).format("DD MMM YYYY hh:mm a")} **Timezone:** ${reminder.Reminder.Timezone}\n**Interval:** ${reminder.Reminder.Interval ? [reminder.Reminder.Interval] : ['once']}\n`
+                // this is the ugliest thing i've done in my life
+                value: `**Reminder:** ${reminder.Reminder.Reminder}
+                **Time:** ${moment(reminder.Reminder.Time).tz(reminder.Reminder.Timezone).format("DD MMM YYYY hh:mm a")} **Timezone:** ${reminder.Reminder.Timezone}
+                **Interval:** ${reminder.Reminder.Interval ? [reminder.Reminder.Interval] : ['once']}
+                ----------------------`
             }))
         )
     })
