@@ -1,4 +1,4 @@
-const { mongoose, Schema } = require('mongoose');
+import { mongoose, Schema } from 'mongoose';
 
 // TODO: Change interval to include an executed value
 let reminderSchema = new Schema({
@@ -12,4 +12,4 @@ let reminderSchema = new Schema({
     GuildId: String
 });
 
-module.exports = mongoose.model('Reminder', reminderSchema);
+export default mongoose.model('Reminder', reminderSchema);

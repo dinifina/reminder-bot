@@ -1,5 +1,5 @@
-const { mongoose, Schema } = require('mongoose');
-const { Reminder } = require('./remindSchema.js');
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
 let lookupSchema = new Schema({
     GuildId: String,
@@ -7,4 +7,4 @@ let lookupSchema = new Schema({
     Reminder: { type: Schema.Types.ObjectId, ref: 'Reminder' }
 });
 
-module.exports = mongoose.model('Lookup', lookupSchema);
+export default mongoose.model('Lookup', lookupSchema);

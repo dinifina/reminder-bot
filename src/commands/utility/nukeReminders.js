@@ -1,8 +1,8 @@
-const Reminder = require('../../Schemas/remindSchema');
-const Lookup = require('../../Schemas/lookupSchema');
-const { SlashCommandBuilder } = require('discord.js');
+import Reminder from '../../Schemas/remindSchema.js';
+import Lookup from '../../Schemas/lookupSchema.js';
+import { SlashCommandBuilder } from 'discord.js';
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('nuke-reminders')
         .setDescription('Deletes all reminders in server'),

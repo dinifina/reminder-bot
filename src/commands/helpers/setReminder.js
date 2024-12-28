@@ -1,5 +1,5 @@
-const Reminder = require('../../Schemas/remindSchema');
-const lookupSch = require('../../Schemas/lookupSchema');
+import Reminder from '../../Schemas/remindSchema.js';
+import lookupSch from '../../Schemas/lookupSchema.js';
 
 function generateCronJob(dateTime, interval) {
     const hour = dateTime.getHours();
@@ -19,7 +19,7 @@ function generateCronJob(dateTime, interval) {
     }
 }
 
-async function setReminder(reminder, users, time, timezone, interval, ChannelId, GuildId) {
+export default async function setReminder(reminder, users, time, timezone, interval, ChannelId, GuildId) {
     try {
         const reminders = await Reminder.find({ GuildId: GuildId }); 
         reminder = await Reminder.create({
@@ -49,5 +49,3 @@ async function setReminder(reminder, users, time, timezone, interval, ChannelId,
         console.error(error);
     }
 }
-
-module.exports = setReminder;

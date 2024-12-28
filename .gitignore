@@ -6,3 +6,5 @@ playground-1.mongodb.js
 .DS_STORE
 package.json
 package-lock.json
+docker-compose.yml
+Dockerfile

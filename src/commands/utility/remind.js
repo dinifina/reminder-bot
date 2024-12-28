@@ -1,6 +1,6 @@
-const moment = require('moment-timezone');
-const setReminder = require('../helpers/setReminder.js');
-const { SlashCommandBuilder, UserSelectMenuBuilder, ActionRowBuilder, ComponentType } = require('discord.js');
+import moment from 'moment-timezone';
+import setReminder from '../helpers/setReminder.js';
+import { SlashCommandBuilder, UserSelectMenuBuilder, ActionRowBuilder, ComponentType } from 'discord.js';
 
 function isValidDateTime(dateTime, timezone) {
     try {
@@ -14,7 +14,7 @@ function isValidDateTime(dateTime, timezone) {
     }
 }
 
-module.exports = {
+export default {
 	data: new SlashCommandBuilder()
 		.setName('remind')
 		.setDescription('Sets a reminder')

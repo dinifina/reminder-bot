@@ -1,12 +1,14 @@
-const moment = require('moment');
-const { Client, Collection, GatewayIntentBits, Guild } = require('discord.js');
-const { mongoose, ObjectId } = require('mongoose');
-const { token, dbUri } = require('../config.json');
-const { parseCronExpression } = require('cron-schedule');
-const fs = require('node:fs');
-const path = require('node:path');
-const Reminder = require('./Schemas/remindSchema.js');
-const Lookup = require('./Schemas/lookupSchema.js');
+import moment from 'moment';
+import { Client, Collection, GatewayIntentBits, Guild } from 'discord.js';
+import { mongoose, ObjectId } from 'mongoose';
+import config from '../config.json' with { type: 'json' };
+const { token, dbUri } = config;
+import { parseCronExpression } from 'cron-schedule';
+import { readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import Reminder from './Schemas/remindSchema.js';
+import Lookup from './Schemas/lookupSchema.js';
 
 const client = new Client({intents: [
     GatewayIntentBits.Guilds,
@@ -16,36 +18,48 @@ const client = new Client({intents: [
 
 client.commands = new Collection();
 
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-for (const folder of commandFolders) {
-    const commandsPath = path.join(foldersPath, folder);
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-    for (const file of commandFiles) {
-        const filePath = path.join(commandsPath, file);
-        const command = require(filePath);
-        // Set a new item in the Collection with the key as the command name and the value as the exported module
-        if ('data' in command && 'execute' in command) {
-            client.commands.set(command.data.name, command);
-        } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data or "execute property.`);
+const foldersPath = join(__dirname, 'commands');
+const commandFolders = readdirSync(foldersPath);
+
+async function loadCommands() {
+    for (const folder of commandFolders) {
+        const commandsPath = join(foldersPath, folder);
+        const commandFiles = readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+        for (const file of commandFiles) {
+            const filePath = join(commandsPath, file);
+            const command = await import(filePath);
+            const commandModule = command.default || command;
+            // Set a new item in the Collection with the key as the command name and the value as the exported module
+            if ('data' in commandModule && 'execute' in commandModule) {
+                client.commands.set(commandModule.data.name, commandModule);
+            } else {
+                console.log(`index.js: [WARNING] The command at ${filePath} is missing a required "data or "execute property.`);
+            }
         }
     }
 }
 
-const eventsPath = path.join(__dirname, 'events');
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+await loadCommands();
 
-for (const file of eventFiles) {
-	const filePath = path.join(eventsPath, file);
-	const event = require(filePath);
-	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
-	} else {
-		client.on(event.name, (...args) => event.execute(...args));
-	}
+const eventsPath = join(__dirname, 'events');
+const eventFiles = readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+async function loadEventCommands() {
+    for (const file of eventFiles) {
+        const filePath = join(eventsPath, file);
+        const event = await import(filePath);
+        if (event.once) {
+            client.once(event.name, (...args) => event.execute(...args));
+        } else {
+            client.on(event.name, (...args) => event.execute(...args));
+        }
+    }
 }
+
+await loadEventCommands();
 
 // Connect to mongo db
 
@@ -97,7 +111,15 @@ async function checkReminders() {
                     await reminder.save();
             }
 
-            channel.send(message);
+            try {
+                await channel.send(message);
+            } catch (error) {
+                if (error.code === 50001) {
+                    console.log(`Cannot send messages in channel ${channel.name}: Missing permissions`);
+                } else {
+                    throw error;
+                }
+            }
         }
     }
 }

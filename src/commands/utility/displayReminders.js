@@ -1,7 +1,6 @@
-const Reminder = require('../../Schemas/remindSchema');
-const lookupSch = require('../../Schemas/lookupSchema');
-const moment = require('moment-timezone');
-const { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonComponent } = require('discord.js');
+import lookupSch from '../../Schemas/lookupSchema.js';
+import moment from 'moment-timezone';
+import { SlashCommandBuilder, ActionRowBuilder, EmbedBuilder, ButtonComponent } from 'discord.js';
 
 async function generateEmbed(interaction, index) {
     const reminders = await lookupSch.find({ GuildId: interaction.guild.id }).populate('Reminder').exec();
@@ -23,7 +22,7 @@ async function generateEmbed(interaction, index) {
     })
 }
 
-module.exports = {
+export default {
     data: new SlashCommandBuilder()
         .setName('display-reminders')
         .setDescription('Display all reminders in the server'),
